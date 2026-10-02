@@ -1,0 +1,4 @@
+interface:
+  display_name: "Freyja Presentations"
+  short_description: "Create engaging source-driven HTML presentations"
+  default_prompt: "Use $engaging-presentations to build a presentation with progressive examples and a clear story."

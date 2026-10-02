@@ -1,0 +1,5 @@
+{
+  "name": "Freyja",
+  "colors": {"background":"#ffffff","foreground":"#102b46","muted":"#5d7287","accent":"#008d94","surface":"#f1f7f7","border":"#d5e4e7","success":"#138574","warning":"#b17a15","danger":"#c1494f"},
+  "font": "Inter, system-ui, sans-serif", "radius": 16
+}

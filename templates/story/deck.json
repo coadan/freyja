@@ -1,0 +1,13 @@
+{
+  "version": 1, "id": "example", "title": "Answers you can act on", "brand": "brand.json",
+  "slides": [
+    {"id":"intro","title":"Answers you can act on","file":"slides/intro.tsx","chrome":"bare","section":"INTRODUCTION","purpose":"Set a clear direction for the audience","steps":["Opening"]},
+    {"id":"problem","title":"The answer exists. Finding it takes work.","file":"slides/problem.tsx","section":"THE PROBLEM","purpose":"Contrast the user's need with the current effort","steps":["The question","The effort","Hypothesis"]},
+    {"id":"setup","title":"Start with the question you actually have.","file":"slides/setup.tsx","chrome":"bare","purpose":"Introduce the demo without explaining it twice","steps":["Setup"]},
+    {"id":"demo","title":"A conversation that leads to an answer","file":"slides/demo.tsx","section":"PRODUCT DEMO","purpose":"Demonstrate the proposed experience using a concrete question","steps":["Agent asks","User responds","Relevant result","Explain the fit"]},
+    {"id":"challenge","title":"What happens when a worker loses the reply?","file":"slides/challenge.tsx","chrome":"bare","section":"TECHNICAL CHALLENGE","purpose":"Introduce a failure before explaining its mechanism","steps":["Challenge"]},
+    {"id":"recovery","title":"One request. One saved result.","file":"slides/recovery.tsx","section":"ARCHITECTURE","purpose":"Make a retry and its protection visible step by step","steps":["Request","Saved","Reply lost","Retry safely"]},
+    {"id":"decisions","title":"Keep the responsibilities clear","file":"slides/decisions.tsx","section":"DESIGN CHOICES","purpose":"Explain the responsibilities after showing the example","steps":["Setup","Authoritative data","Coordination","Derived views"]},
+    {"id":"questions","title":"Questions & discussion","file":"slides/questions.tsx","section":"DISCUSSION","purpose":"Give the audience concrete topics to explore","steps":["Topics"]}
+  ]
+}

@@ -1,0 +1,5 @@
+import './story.css';
+import { Card, Reveal, type SlideProps } from '@freyja/sdk';
+export default function Demo({step}: SlideProps) {
+  return <div className={`demo-layout ${step >= 1 ? 'has-results' : ''}`}><div><div className="f-chat-message agent"><div className="f-bubble">What are you trying to understand?</div></div><Reveal at={1} reserve={false}><div className="f-chat-message user"><div className="f-bubble">Our request timed out. Can we retry without saving the change twice?</div></div></Reveal><Reveal at={2} reserve={false}><div className="f-chat-message agent"><div className="f-bubble">Does the request have a stable operation ID?</div></div></Reveal><Reveal at={3} reserve={false}><div className="f-chat-message user"><div className="f-bubble">Yes, we reuse the same ID on retries.</div></div></Reveal></div>{step >= 1 && <div><Reveal at={2}><Card><span className="f-label">Relevant documentation</span><h3>Recover a saved result</h3><p>A retry with the same operation ID returns the existing result.</p></Card></Reveal><Reveal at={3}><p style={{color:'var(--accent)'}}>This applies because your retry keeps the same identity.</p></Reveal></div>}</div>;
+}
