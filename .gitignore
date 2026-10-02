@@ -1,0 +1,4 @@
+node_modules/
+.freyja/
+dist/
+*.tsbuildinfo

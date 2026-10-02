@@ -1,0 +1,8 @@
+{
+  "mode": "local",
+  "branch": "main",
+  "hooks": {
+    "prepare": [{ "name": "dependencies", "command": ["npm", "ci"] }],
+    "check": [{ "name": "verify", "command": ["npm", "run", "check"] }]
+  }
+}

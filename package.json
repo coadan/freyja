@@ -1,0 +1,35 @@
+{
+  "name": "freyja",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "bin": { "freyja": "scripts/cli.mjs" },
+  "scripts": {
+    "dev": "node scripts/cli.mjs serve",
+    "mcp": "node scripts/cli.mjs mcp",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:browser": "node --import tsx tests/browser.ts",
+    "check": "npm run typecheck && npm test && npm run test:browser"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.31.0",
+    "@revealjs/react": "0.2.2",
+    "lucide-react": "^1.47.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "reveal.js": "^6.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.0.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/reveal.js": "^5.2.0",
+    "playwright": "1.63.0"
+  }
+}
