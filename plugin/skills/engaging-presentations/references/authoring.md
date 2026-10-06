@@ -62,7 +62,7 @@ and colors: `background`, `foreground`, `muted`, `accent`, `surface`, `border`,
 `success`, `warning`, `danger`. Deck CSS can use `var(--accent)` etc.
 
 Optional `tokens` maps extra names to values, each exposed as a CSS variable
-(`"tokens": {"lime": "#A0EB23"}` becomes `var(--lime)`).
+(`"tokens": {"highlight": "#FFC400"}` becomes `var(--highlight)`).
 
 ## Profiles
 
