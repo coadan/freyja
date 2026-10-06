@@ -53,7 +53,7 @@ test('real stdio MCP operates the shared service and exposes no source edits', a
   try {
     await client.connect(transport);
     const tools=(await client.listTools()).tools.map(t=>t.name);
-    assert.equal(tools.length,10); assert.ok(!tools.some(t=>/update_sources|set_slide_order|write|patch/.test(t)));
+    assert.equal(tools.length,11); assert.ok(!tools.some(t=>/update_sources|set_slide_order|write|patch/.test(t)));
     const created=await client.callTool({name:'create_presentation',arguments:{id:'mcp-talk',title:'Through MCP'}});
     assert.equal(created.isError,undefined);
     const inspected=await client.callTool({name:'inspect_presentation',arguments:{id:'mcp-talk'}});

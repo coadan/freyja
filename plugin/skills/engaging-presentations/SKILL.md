@@ -60,7 +60,10 @@ rethink composition and pacing rather than reproducing the original geometry.
 
 Validate and build; compilation does not prove visual quality or the demonstrated
 system's claims. Walk forward/back through changed interactions and check tabs,
-slide jumps and deep-link reloads. Return the source and preview locations.
+slide jumps and deep-link reloads. Use `export_pdf` for a PDF handout: final rendered
+slides by default, or `allSteps: true` to include every interaction state. Check the
+PDF when requested; interactive scenes become static pages. Return the source and
+preview locations.
 
 The app only presents: no source editor, notes view or dashboard. Keep supporting
 notes in separate documents when requested. Don't migrate an existing presentation,

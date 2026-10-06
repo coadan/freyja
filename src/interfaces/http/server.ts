@@ -9,6 +9,7 @@ import { browserBinary, createPreview } from '../../application/vite.ts';
 import type { Position } from '../../shared/manifest.ts';
 import {toolDefinitions} from '../../shared/operations.ts';
 import {z} from 'zod';
+import {exportPdf} from '../../application/pdf.ts';
 
 export async function startApp(dataDir: string, port = 0) {
   const service = new Presentations(dataDir), token = randomBytes(24).toString('hex');
@@ -36,6 +37,11 @@ export async function startApp(dataDir: string, port = 0) {
     },
     validate_presentation: args => service.validate(args.id, true),
     build_presentation: args => service.build(args.id),
+    export_pdf: async args => {
+      const deck = await service.inspect(args.id), allSteps = args.allSteps ?? false;
+      const output = path.join(dataDir, 'exports', args.id, deck.revision, `${args.id}${allSteps ? '-all-steps' : ''}.pdf`);
+      return {id: args.id, revision: deck.revision, ...await exportPdf({url: await preview(args.id), manifest: deck.manifest, output, allSteps})};
+    },
     render_slide: async args => {
       const deck = await service.inspect(args.id), slide = deck.manifest.slides.find(s => s.id === args.slideId);
       if (!slide || args.step < 0 || args.step >= slide.steps.length) throw new Error('Invalid slide or step');
@@ -75,6 +81,15 @@ export async function startApp(dataDir: string, port = 0) {
         const definition = toolDefinitions.find(([name]) => name === operation)!;
         const validated = z.object(definition[2]).strict().parse(args ?? {});
         return json(res, 200, {result: await operations[operation](validated)});
+      }
+      const pdf = route.match(/^\/api\/pdf\/([a-z][a-z0-9-]*)$/);
+      if (pdf && req.method === 'POST') {
+        if (req.headers.origin !== url) return json(res, 403, {error: 'Same-origin presenter request required'});
+        const options = z.object({allSteps: z.boolean().optional()}).strict().parse(await body(req));
+        const result = await operations.export_pdf({id: pdf[1], ...options}) as {path: string};
+        const content = await readFile(result.path);
+        res.writeHead(200, {'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${path.basename(result.path)}"`, 'Cache-Control': 'no-store'});
+        res.end(content); return;
       }
       const events = route.match(/^\/api\/events\/([a-z][a-z0-9-]*)$/);
       if (events && req.method === 'GET') {

@@ -10,5 +10,6 @@ export const toolDefinitions: Array<[string, string, z.ZodRawShape, boolean]> = 
     ['get_presentation_state', 'Inspect the last reported position and number of connected presentation views.', {id: identifier}, true],
     ['render_slide', 'Capture a slide step in an isolated browser without moving the live presentation. Requires Playwright Chromium.', {id: identifier, slideId: identifier, step: z.number().int().min(0)}, true],
     ['validate_presentation', 'Validate sources and compile the deck; return diagnostics. Screenshots are a separate quality check.', {id: identifier}, true],
+    ['export_pdf', 'Export fully rendered slides to PDF without moving the presenter. One final-state page per slide by default; allSteps includes every interaction step. Requires Playwright Chromium.', {id: identifier, allSteps: z.boolean().optional()}, false],
     ['build_presentation', 'Build a standalone static HTML directory and record its revision.', {id: identifier}, false],
   ];

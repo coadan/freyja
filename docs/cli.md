@@ -14,6 +14,7 @@ server status goes to stderr.
 | `open` | `--id my-talk --slide recovery --step 2`; navigate connected views |
 | `capture` | Same position arguments; capture a step without moving the presenter |
 | `validate` | `--id my-talk`; check source syntax and bundling |
+| `pdf` | `--id my-talk [--all-steps]`; export final slides or every step |
 | `build` | `--id my-talk`; produce a static export directory |
 | `serve` | `[--port 4174]`; foreground loopback service |
 | `mcp` | Run the stdio MCP interface |
@@ -54,3 +55,27 @@ is needed. Navigation and scripted steps work in the export. Imported assets are
 bundled; externally hosted resources still need network access. The export is a
 directory, not a single self-contained HTML file. Validation checks syntax and
 bundling, not complete TypeScript semantics, visual quality or factual accuracy.
+
+## PDF handouts
+
+```sh
+node scripts/cli.mjs pdf --id my-talk
+node scripts/cli.mjs pdf --id my-talk --all-steps
+```
+
+The default is one page per slide at its final scripted step, including all
+progressive reveals visible in that state. `--all-steps` includes every state in
+slide order. If a scene replaces earlier content, only the final version appears
+in the default handout; choose all steps to show its progression.
+
+PDF export runs the actual deck in isolated Chromium pages, waits for fonts and
+images, and prints 16:9 pages with backgrounds. Text stays selectable; SVG stays
+vector, while canvas and raster media retain their own resolution. Playback,
+animations and interactive controls become static states. The live preview's
+position does not move. Files are stored under the data directory's `exports/`.
+
+The live presenter has an **Export PDF** toolbar button for the default handout.
+It is omitted from static HTML exports because those have no local app backend.
+Use MCP `export_pdf` with `allSteps: true` for the expanded version. After upgrading
+the application, stop the existing service with `node scripts/cli.mjs stop`,
+then run preview again to load the updated backend.

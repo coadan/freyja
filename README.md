@@ -44,10 +44,16 @@ npx playwright install chromium
 node scripts/cli.mjs capture --id my-talk --slide recovery --step 3
 node scripts/cli.mjs validate --id my-talk
 node scripts/cli.mjs build --id my-talk
+node scripts/cli.mjs pdf --id my-talk
 ```
 
 A build is a static directory you can serve over HTTP without the Freyja app.
 Imported assets are bundled; remote resources remain remote.
+
+Use **Export PDF** in the live presenter toolbar for a handout with one fully
+rendered, final-state page per slide. Text and diagrams remain sharp in the PDF.
+To include each interaction state, run `node scripts/cli.mjs pdf --id my-talk
+--all-steps`. PDF export requires Chromium and leaves the live position unchanged.
 
 ## Create with an agent
 
@@ -90,6 +96,7 @@ stdio MCP connection and development validation.
 | G | Search and jump to a slide |
 | O | Slide overview |
 | F | Fullscreen |
+| Export PDF | Download final rendered slides (live preview) |
 | Escape | Close jump or overview |
 
 Stable slide IDs give durable `#/slide-id/step` links when the deck is reordered.

@@ -9,7 +9,7 @@ import { startApp } from './interfaces/http/server.ts';
 import { serveMcp } from './interfaces/mcp/server.ts';
 
 const {values, positionals} = parseArgs({allowPositionals: true, options: {
-  help: {type: 'boolean', short: 'h'}, version: {type: 'boolean'}, 'data-dir': {type: 'string'}, port: {type: 'string'}, id: {type: 'string'}, title: {type: 'string'}, theme: {type: 'string'}, directory: {type: 'string'}, slide: {type: 'string'}, step: {type: 'string'},
+  'all-steps': {type: 'boolean'}, help: {type: 'boolean', short: 'h'}, version: {type: 'boolean'}, 'data-dir': {type: 'string'}, port: {type: 'string'}, id: {type: 'string'}, title: {type: 'string'}, theme: {type: 'string'}, directory: {type: 'string'}, slide: {type: 'string'}, step: {type: 'string'},
 }});
 const dataDir = path.resolve(values['data-dir'] ?? process.env.FREYJA_DATA_DIR ?? path.join(homedir(), '.local/share/freyja'));
 const command = positionals[0] ?? 'serve';
@@ -65,6 +65,7 @@ Commands:
   capture    --id <id> --slide <slide-id> [--step <number>]
   validate   --id <id>
   build      --id <id>
+  pdf        --id <id> [--all-steps] (final rendered slides by default)
   serve      [--port <number>] (default 4174; 0 chooses an available port)
   mcp        Run the stdio MCP interface
   stop       Stop the shared local app
@@ -91,10 +92,11 @@ Source edits control slides, order, demos and branding. See docs/cli.md.`);
       list: ['list_presentations', {}], create: ['create_presentation', {id, title: values.title, theme: values.theme, directory: values.directory}],
       register: ['register_presentation', {directory: values.directory}], inspect: ['inspect_presentation', {id}],
       preview: ['preview_presentation', {id}], open: ['open_presentation', {id, slideId: values.slide, step: Number(values.step ?? 0)}],
+      pdf: ['export_pdf', {id, allSteps: values['all-steps'] ?? false}],
       validate: ['validate_presentation', {id}], build: ['build_presentation', {id}],
       capture: ['render_slide', {id, slideId: values.slide, step: Number(values.step ?? 0)}],
     };
-    if (!mappings[command]) throw new Error('Commands: serve, mcp, stop, list, create, register, inspect, preview, open, validate, capture, build');
+    if (!mappings[command]) throw new Error('Commands: serve, mcp, stop, list, create, register, inspect, preview, open, validate, capture, build, pdf');
     console.log(JSON.stringify(await call(...mappings[command]), null, 2));
   }
 } catch (error) {console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1;}

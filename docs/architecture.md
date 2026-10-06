@@ -47,3 +47,16 @@ evidence. There are no presentation notes, editing or management views in the ap
 The design deliberately uses the existing React/Reveal approach. Custom interactions
 remain expressive without expanding a JSON behavior language. A future plugin can
 package new templates or skills without changing the presentation engine.
+
+## PDF export
+
+`export_pdf` runs the same TSX and scripted positions in isolated Chromium pages.
+The default prints the final step of each slide; the expanded mode prints every
+step. Chromium supplies the rendered PDF pages and pdf-lib assembles them into one
+16:9 document with selectable text. Print CSS removes Reveal's navigation transforms
+and hides non-current slides; it does not introduce a second slide renderer.
+
+The browser toolbar uses a same-origin POST download endpoint. CLI and MCP use the
+authenticated app-operation endpoint. Capture mode prevents export pages from
+reporting their positions or subscribing to live navigation. Export files are
+derived artifacts in the data directory, not presentation source.

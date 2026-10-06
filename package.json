@@ -21,6 +21,7 @@
     "@modelcontextprotocol/sdk": "1.31.0",
     "@revealjs/react": "0.2.2",
     "lucide-react": "^1.47.0",
+    "pdf-lib": "1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "reveal.js": "^6.0.0",

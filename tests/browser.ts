@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdtemp, rm, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
+import { PDFDocument, PDFName, PDFDict, PDFArray, PDFRawStream } from 'pdf-lib';
 import { startApp } from '../src/interfaces/http/server.ts';
 
 const root=await mkdtemp(path.join(tmpdir(),'freyja-browser-')),app=await startApp(root);
@@ -35,6 +37,37 @@ try {
   await app.operations.open_presentation({id:created.id,slideId:'decisions',step:2});await position('decisions',2);
   const screenshot=await app.operations.render_slide({id:created.id,slideId:'recovery',step:3}) as {path:string};
   assert.ok((await readFile(screenshot.path)).length>10000);await position('decisions',2);
+  const beforeExport=await app.operations.get_presentation_state({id:created.id}) as {position:unknown};
+  const finalPdf=await app.operations.export_pdf({id:created.id}) as {path:string;pages:number;mode:string};
+  const manifest=JSON.parse(await readFile(path.join(created.source,'deck.json'),'utf8'));
+  const printed=await PDFDocument.load(await readFile(finalPdf.path));
+  assert.equal(finalPdf.pages,manifest.slides.length);assert.equal(finalPdf.mode,'final');
+  assert.equal(printed.getPageCount(),manifest.slides.length);
+  const pageFingerprints:string[]=[];
+  for(const sheet of printed.getPages()) {
+    const contents=sheet.node.Contents();assert.ok(contents);
+    const streams=contents instanceof PDFArray ? contents.asArray().map(ref=>{const stream=printed.context.lookup(ref);assert.ok(stream instanceof PDFRawStream);return stream;}) : [contents];
+    const hash=createHash('sha256');for(const stream of streams)hash.update(stream.getContents());
+    pageFingerprints.push(hash.digest('hex'));
+    assert.equal(sheet.getWidth(),960);assert.equal(sheet.getHeight(),540);
+    const fonts=sheet.node.Resources()?.lookupMaybe(PDFName.of('Font'),PDFDict);
+    assert.ok(fonts&&fonts.keys().length>0,'Export must retain PDF text fonts rather than rasterizing each slide');
+  }
+  assert.equal(new Set(pageFingerprints).size,manifest.slides.length,'Each PDF page must contain its own rendered slide');
+  const allPdf=await app.operations.export_pdf({id:created.id,allSteps:true}) as {path:string;pages:number};
+  const expectedSteps=manifest.slides.reduce((count:number,slide:{steps:string[]})=>count+slide.steps.length,0);
+  assert.equal(allPdf.pages,expectedSteps);
+  assert.equal((await PDFDocument.load(await readFile(allPdf.path))).getPageCount(),expectedSteps);
+  assert.deepEqual((await app.operations.get_presentation_state({id:created.id}) as {position:unknown}).position,beforeExport.position);
+  await position('decisions',2);
+  const rejectedPdf=await fetch(`${app.url}/api/pdf/${created.id}`,{method:'POST',headers:{Origin:'https://foreign.example','Content-Type':'application/json'},body:'{}'});
+  assert.equal(rejectedPdf.status,403);
+  const downloadEvent=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Export PDF',exact:true}).click();
+  const download=await downloadEvent,downloadPath=await download.path();assert.ok(downloadPath);
+  assert.equal(download.suggestedFilename(),`${created.id}.pdf`);
+  assert.equal((await PDFDocument.load(await readFile(downloadPath))).getPageCount(),manifest.slides.length);
+  await page.getByRole('button',{name:'Export PDF',exact:true}).waitFor();await position('decisions',2);
   // Ordinary source editing must become visible through Vite.
   const intro=path.join(created.source,'slides/intro.tsx'),code=await readFile(intro,'utf8');
   await writeFile(intro,code.replace('{slide.title}','Source edited directly'));
@@ -49,10 +82,11 @@ try {
   await new Promise<void>(resolve=>staticServer!.listen(0,'127.0.0.1',resolve));const address=staticServer.address();assert.ok(address&&typeof address!=='string');
   const exported=await browser.newPage();await exported.goto(`http://127.0.0.1:${address.port}/#/recovery/2`);await exported.waitForSelector('.reveal.ready');
   await exported.waitForFunction(()=>window.freyja?.position.step===2);assert.equal(await exported.locator('.present .f-flow-node').first().textContent(),'WorkerReply lost');
+  assert.equal(await exported.getByRole('button',{name:'Export PDF',exact:true}).count(),0);
   await exported.keyboard.press('ArrowRight');await exported.waitForFunction(()=>window.freyja?.position.step===3);
   const midnight=await app.service.create({id:'another-topic',title:'Another topic',theme:'midnight'});
   const dark=await browser.newPage();await dark.goto(await app.preview(midnight.id));await dark.waitForSelector('.reveal.ready');
   assert.equal(await dark.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--background')),'#101629');
   assert.deepEqual(errors,[]);assert.equal(await page.locator('[role=alert]').count(),0);
-  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build and second theme.');
+  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build, second theme and PDF final/all-step exports with isolated downloads.');
 }finally{await browser.close();if(staticServer)await new Promise<void>(resolve=>staticServer!.close(()=>resolve()));await app.close();await rm(root,{recursive:true,force:true});}

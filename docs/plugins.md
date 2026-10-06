@@ -63,8 +63,8 @@ to the agent using that client's skill mechanism.
 
 ## Tool boundaries
 
-Tools list, create, register, inspect, preview, open, get state, render, validate
-and build presentations. Source editing stays in the agent's normal file tools.
+Tools list, create, register, inspect, preview, open, get state, render, validate,
+build presentations and export PDFs. Source editing stays in the agent's normal file tools.
 Preview and open return URLs; they do not automatically open an OS browser.
 Captures use isolated browser pages so they do not move your live presentation.
 
