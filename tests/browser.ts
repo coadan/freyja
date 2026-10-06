@@ -97,6 +97,7 @@ try {
   const branded=await browser.newPage();const brandErrors:string[]=[];branded.on('pageerror',e=>brandErrors.push(e.message));
   await branded.goto(await app.preview(profiled.id));await branded.waitForSelector('.reveal.ready');
   assert.equal(await branded.locator('.present .fixture-badge').textContent(),'Profiled talk');
+  assert.equal(await branded.locator('.present .fixture-badge svg').count(),1,'Profile components can import lucide-react icons');
   assert.equal(await branded.locator('.present .fixture-badge').evaluate(e=>getComputedStyle(e).color),'rgb(255, 0, 170)','Brand tokens and profile styles must reach @profile components');
   assert.equal(await branded.locator('.present .f-canvas').evaluate(e=>e.getAttribute('data-variant')),'inverse');
   assert.equal(await branded.locator('.present .f-canvas').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(17, 17, 17)');

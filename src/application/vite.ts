@@ -40,7 +40,8 @@ async function common(source: string, live: boolean) {
   if (profile) alias['@profile'] = profile.root;
   return {config: {root: playerRoot, configFile: false as const, publicDir: false as const, logLevel: 'silent' as const,
     plugins: [sourcePlugin(source)], esbuild: {jsx: 'automatic' as const},
-    resolve: {alias, dedupe: ['react', 'react-dom']},
+    // Profiles and decks outside the app checkout resolve these packages from the app.
+    resolve: {alias, dedupe: ['react', 'react-dom', 'lucide-react']},
     define: {__FREYJA_LIVE__: JSON.stringify(live)},
   }, allow: profile ? [appRoot, source, profile.root] : [appRoot, source]};
 }

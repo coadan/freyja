@@ -83,8 +83,8 @@ with `@profile/<path>`: `"brand": "@profile/brand.json"`, a logo, or a TSX/CSS
 import such as `import {Statement} from '@profile/kit'`. Profile `styles` load after
 the player's base styles and before deck CSS, so a deck can still override them.
 Profile files count toward the deck revision. Restart the preview after changing
-a deck's `profile` path. Profile components may import `react` and `@freyja/sdk`
-only; other packages don't resolve from outside the application checkout.
+a deck's `profile` path. Profile components may import `react`, `lucide-react` icons and
+`@freyja/sdk`; other packages don't resolve from outside the application checkout.
 
 Import local assets and styles from TSX so Vite bundles them. Relative imports
 share custom components between slides. Official logos are ordinary assets;
