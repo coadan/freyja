@@ -3,8 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
-  "bin": { "freyja": "scripts/cli.mjs" },
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "freyja": "scripts/cli.mjs"
+  },
   "scripts": {
     "dev": "node scripts/cli.mjs serve",
     "mcp": "node scripts/cli.mjs mcp",
@@ -31,5 +35,24 @@
     "@types/react-dom": "^19.0.0",
     "@types/reveal.js": "^5.2.0",
     "playwright": "1.63.0"
-  }
+  },
+  "description": "Interactive HTML presentations and step-by-step demos, authored as TSX with local MCP tools.",
+  "license": "MIT",
+  "author": "coadan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coadan/freyja.git"
+  },
+  "bugs": {
+    "url": "https://github.com/coadan/freyja/issues"
+  },
+  "homepage": "https://github.com/coadan/freyja#readme",
+  "keywords": [
+    "presentations",
+    "mcp",
+    "codex",
+    "claude-code",
+    "react",
+    "typescript"
+  ]
 }

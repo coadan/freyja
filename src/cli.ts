@@ -9,7 +9,7 @@ import { startApp } from './interfaces/http/server.ts';
 import { serveMcp } from './interfaces/mcp/server.ts';
 
 const {values, positionals} = parseArgs({allowPositionals: true, options: {
-  'data-dir': {type: 'string'}, port: {type: 'string'}, id: {type: 'string'}, title: {type: 'string'}, theme: {type: 'string'}, directory: {type: 'string'}, slide: {type: 'string'}, step: {type: 'string'},
+  help: {type: 'boolean', short: 'h'}, version: {type: 'boolean'}, 'data-dir': {type: 'string'}, port: {type: 'string'}, id: {type: 'string'}, title: {type: 'string'}, theme: {type: 'string'}, directory: {type: 'string'}, slide: {type: 'string'}, step: {type: 'string'},
 }});
 const dataDir = path.resolve(values['data-dir'] ?? process.env.FREYJA_DATA_DIR ?? path.join(homedir(), '.local/share/freyja'));
 const command = positionals[0] ?? 'serve';
@@ -50,7 +50,35 @@ async function call(operation: string, args: unknown) {
   const result = await response.json() as {result?: unknown; error?: string}; if (!response.ok) throw new Error(result.error); return result.result;
 }
 try {
-  if (command === 'serve') {
+  if (values.help || command === 'help') {
+    console.log(`Freyja — interactive presentations from ordinary TSX source
+
+Usage: node scripts/cli.mjs <command> [options]
+
+Commands:
+  create     --id <id> --title <title> [--theme editorial|midnight] [--directory <path>]
+  register   --directory <path>
+  list       List registered presentations
+  inspect    --id <id>
+  preview    --id <id>
+  open       --id <id> --slide <slide-id> [--step <number>]
+  capture    --id <id> --slide <slide-id> [--step <number>]
+  validate   --id <id>
+  build      --id <id>
+  serve      [--port <number>] (default 4174; 0 chooses an available port)
+  mcp        Run the stdio MCP interface
+  stop       Stop the shared local app
+
+Options:
+  --data-dir <path>  Override FREYJA_DATA_DIR / ~/.local/share/freyja
+  -h, --help        Show this help
+  --version         Show the application version
+
+Source edits control slides, order, demos and branding. See docs/cli.md.`);
+  } else if (values.version || command === 'version') {
+    const metadata = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+    console.log(metadata.version);
+  } else if (command === 'serve') {
     if (await running()) throw new Error('Freyja is already running for this data directory.');
     const app = await startApp(dataDir, Number(values.port ?? 4174));
     console.error(`Freyja: ${app.url}\nData: ${dataDir}`);

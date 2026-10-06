@@ -1,6 +1,7 @@
 # Freyja
 
-Local delivery through Workbench. No remote publication is configured.
+Use local Workbench delivery. Publish commits or releases only when the user asks.
+See [contribution guidance](CONTRIBUTING.md) and the [docs index](docs/README.md).
 
 - Presentations are ordinary source directories. Agents edit TSX, manifests,
   themes and assets with file tools; MCP must not expose source-writing tools.
@@ -11,5 +12,7 @@ Local delivery through Workbench. No remote publication is configured.
 - One `{slideId, step}` position drives keys, tabs, URLs and MCP navigation.
 - Preserve the distinction between rendering a demonstration and proving its claims.
 - `npm run check` verifies types, service/MCP behavior and real browser navigation.
+- Codex and Claude Code share `plugin/skills/` and the MCP launcher. Keep client
+  manifests and marketplace catalogs compatible with their respective formats.
 - Installed plugins launch the app from `FREYJA_ROOT` or `~/repos/freyja`.
   Dependencies belong to that application checkout, not the plugin cache.

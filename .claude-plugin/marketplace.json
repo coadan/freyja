@@ -1,0 +1,14 @@
+{
+  "name": "freyja-local",
+  "owner": {
+    "name": "coadan"
+  },
+  "plugins": [
+    {
+      "name": "freyja",
+      "source": "./plugin",
+      "description": "Explain complex topics through interactive presentations and step-by-step demos."
+    }
+  ],
+  "description": "Freyja interactive presentation authoring for Claude Code."
+}

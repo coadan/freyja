@@ -1,0 +1,19 @@
+{
+  "name": "freyja",
+  "version": "0.1.0",
+  "description": "Explain complex topics through interactive presentations and step-by-step demos.",
+  "author": {
+    "name": "coadan"
+  },
+  "homepage": "https://github.com/coadan/freyja",
+  "repository": "https://github.com/coadan/freyja",
+  "license": "MIT",
+  "mcpServers": {
+    "freyja": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/mcp.mjs"
+      ]
+    }
+  }
+}

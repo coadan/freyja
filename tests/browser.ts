@@ -19,6 +19,9 @@ try {
   await position('recovery',0);
   for(let i=1;i<=3;i++){await page.keyboard.press('ArrowRight');await position('recovery',i);}
   assert.equal(await page.locator('.present .f-metric strong').first().textContent(),'1');
+  const panelBox=await page.locator('.present .f-state-panel').boundingBox();
+  const footerBox=await page.locator('.present .f-footer').boundingBox();
+  assert.ok(panelBox&&footerBox&&panelBox.y+panelBox.height<=footerBox.y,'Starter flow state must fit above its footer');
   await page.keyboard.press('ArrowLeft');await position('recovery',2);
   await page.getByRole('button',{name:'Saved',exact:true}).click();await position('recovery',1);
   await page.keyboard.press('ArrowRight');await position('recovery',2);

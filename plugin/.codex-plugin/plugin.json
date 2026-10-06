@@ -1,13 +1,24 @@
 {
-  "name": "freyja", "version": "0.1.0",
+  "name": "freyja",
+  "version": "0.1.0",
   "description": "Explain complex topics through engaging HTML presentations and step-by-step interaction demos, authored as TSX.",
-  "author": {"name": "Vegard"},
-  "skills": "./skills/", "mcpServers": "./.mcp.json",
+  "author": {
+    "name": "coadan"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.codex-plugin/mcp.json",
   "interface": {
-    "displayName": "Freyja", "shortDescription": "Explain through interactive presentations.",
+    "displayName": "Freyja",
+    "shortDescription": "Explain through interactive presentations.",
     "longDescription": "Break complex topics into manageable steps. Author presentations and interaction demos directly in TSX, and inspect them in a local player. Freyja provides navigation, themes, preview, screenshots and builds; custom slide behavior stays in presentation source.",
-    "developerName": "Vegard", "category": "Productivity",
-    "capabilities": ["Read", "Write"],
-    "defaultPrompt": ["Help me explain a complex topic with a presentation and step-by-step demos."]
+    "developerName": "coadan",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Help me explain a complex topic with a presentation and step-by-step demos."
+    ]
   }
 }

@@ -2,8 +2,8 @@ import StateFlow, {type FlowNode, type FlowEdge, type FlowState} from './flow-ex
 import './story.css';
 import { StatePanel, Metric, StepTabs, type SlideProps } from '@freyja/sdk';
 const nodes: FlowNode[] = [
-  {id:'worker',label:'Worker',icon:'server',x:40,y:105,value:'Send request'},
-  {id:'data',label:'Database',icon:'database',x:680,y:105,value:'No saved result'},
+  {id:'worker',label:'Worker',icon:'server',x:40,y:40,value:'Send request'},
+  {id:'data',label:'Database',icon:'database',x:680,y:40,value:'No saved result'},
 ];
 const edges: FlowEdge[] = [{id:'request',from:'worker',to:'data',label:'Operation: change-7',tone:'active'}];
 const states: FlowState[] = [

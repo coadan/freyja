@@ -2,3 +2,12 @@ node_modules/
 .freyja/
 dist/
 *.tsbuildinfo
+.workbench/
+.worktrees/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

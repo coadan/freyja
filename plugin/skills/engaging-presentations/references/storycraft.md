@@ -1,7 +1,7 @@
 # Explain through interactions
 
-Practices distilled from the Endgame presentation. Its real-estate domain, chat
-demo and particular architecture are examples, not framework requirements.
+Explain unfamiliar mechanisms through concrete examples and visible changes.
+Each topic supplies its own domain, interactions and visual language.
 
 ## Build a mental model one step at a time
 
