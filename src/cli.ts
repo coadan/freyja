@@ -9,7 +9,7 @@ import { startApp } from './interfaces/http/server.ts';
 import { serveMcp } from './interfaces/mcp/server.ts';
 
 const {values, positionals} = parseArgs({allowPositionals: true, options: {
-  'all-steps': {type: 'boolean'}, help: {type: 'boolean', short: 'h'}, version: {type: 'boolean'}, 'data-dir': {type: 'string'}, port: {type: 'string'}, id: {type: 'string'}, title: {type: 'string'}, theme: {type: 'string'}, directory: {type: 'string'}, slide: {type: 'string'}, step: {type: 'string'},
+  'all-steps': {type: 'boolean'}, help: {type: 'boolean', short: 'h'}, version: {type: 'boolean'}, 'data-dir': {type: 'string'}, port: {type: 'string'}, id: {type: 'string'}, title: {type: 'string'}, theme: {type: 'string'}, directory: {type: 'string'}, profile: {type: 'string'}, slide: {type: 'string'}, step: {type: 'string'},
 }});
 const dataDir = path.resolve(values['data-dir'] ?? process.env.FREYJA_DATA_DIR ?? path.join(homedir(), '.local/share/freyja'));
 const command = positionals[0] ?? 'serve';
@@ -56,7 +56,7 @@ try {
 Usage: node scripts/cli.mjs <command> [options]
 
 Commands:
-  create     --id <id> --title <title> [--theme editorial|midnight] [--directory <path>]
+  create     --id <id> --title <title> [--theme editorial|midnight] [--directory <path>] [--profile <path>]
   register   --directory <path>
   list       List registered presentations
   inspect    --id <id>
@@ -89,7 +89,7 @@ Source edits control slides, order, demos and branding. See docs/cli.md.`);
   else {
     const id = values.id;
     const mappings: Record<string, [string, unknown]> = {
-      list: ['list_presentations', {}], create: ['create_presentation', {id, title: values.title, theme: values.theme, directory: values.directory}],
+      list: ['list_presentations', {}], create: ['create_presentation', {id, title: values.title, theme: values.theme, directory: values.directory && path.resolve(values.directory), profile: values.profile && path.resolve(values.profile)}],
       register: ['register_presentation', {directory: values.directory}], inspect: ['inspect_presentation', {id}],
       preview: ['preview_presentation', {id}], open: ['open_presentation', {id, slideId: values.slide, step: Number(values.step ?? 0)}],
       pdf: ['export_pdf', {id, allSteps: values['all-steps'] ?? false}],

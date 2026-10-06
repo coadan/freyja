@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {identifier} from './manifest.ts';
 export const toolDefinitions: Array<[string, string, z.ZodRawShape, boolean]> = [
     ['list_presentations', 'List local presentation IDs and source directories.', {}, true],
-    ['create_presentation', 'Scaffold a source presentation. Edit the returned files with normal file tools.', {id: identifier, title: z.string().min(1), theme: z.enum(['editorial','midnight']).optional(), directory: z.string().optional()}, false],
+    ['create_presentation', 'Scaffold a source presentation, optionally from a profile directory. Edit the returned files with normal file tools.', {id: identifier, title: z.string().min(1), theme: z.enum(['editorial','midnight']).optional(), directory: z.string().optional(), profile: z.string().optional().describe('Profile directory: scaffold from its template and link its brand, styles and guidelines. Overrides theme.')}, false],
     ['register_presentation', 'Register an existing Freyja source directory without rewriting it.', {directory: z.string()}, false],
     ['inspect_presentation', 'Read outline, brand, step labels, source graph and SDK location. Content remains in source files.', {id: identifier}, true],
     ['preview_presentation', 'Start or reuse a live local preview and return its URL.', {id: identifier}, false],

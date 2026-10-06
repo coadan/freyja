@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile, readFile, symlink } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile, readFile, symlink, cp, mkdir, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { deckSchema, advance, normalizePosition } from '../src/shared/manifest.ts';
 import { Presentations } from '../src/application/presentations.ts';
-import { inside } from '../src/storage/sources.ts';
+import { inside, loadSource } from '../src/storage/sources.ts';
 import { appRoot } from '../src/application/vite.ts';
 import { startApp } from '../src/interfaces/http/server.ts';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
@@ -44,6 +44,32 @@ test('catalog persists, direct source edits change inspection and duplicate crea
     service.catalog.close();service=new Presentations(root);
     assert.equal(service.catalog.list()[0].id,deck.id);
     await assert.rejects(service.position(deck.id,{slideId:'recovery',step:100}),/Invalid step/);
+  } finally {service.catalog.close();await rm(root,{recursive:true,force:true});}
+});
+test('profiles scaffold decks, expose guidelines and include profile files in the revision', async () => {
+  const root=await mkdtemp(path.join(tmpdir(),'freyja-profile-'));
+  const profileDir=path.join(root,'repo/profile');
+  await cp(path.join(appRoot,'tests/fixtures/profile'),profileDir,{recursive:true});
+  await mkdir(path.join(root,'repo/presentations'));
+  const service=new Presentations(path.join(root,'data'));
+  try {
+    const deck=await service.create({id:'profile-talk',title:'Through a profile',directory:path.join(root,'repo/presentations/profile-talk'),profile:profileDir});
+    const inspected=await service.inspect(deck.id);
+    assert.equal(inspected.manifest.profile,'../../profile');
+    assert.equal(inspected.manifest.brand,'@profile/brand.json');
+    assert.equal(inspected.brand.tokens.signal,'#ff00aa');
+    assert.equal(inspected.profile?.name,'Fixture');
+    assert.equal(inspected.profile?.guidelines[0].purpose,'Tone of voice for slide copy');
+    await access(inspected.profile!.guidelines[0].path);
+    assert.match(inspected.authoring,/profile guideline/);
+    assert.ok(inspected.graph.edges.some(e=>e.kind==='profile'&&e.to==='@profile/kit/Badge'));
+    await writeFile(path.join(profileDir,'styles/profile.css'),'.fixture-badge{color:red}\n');
+    assert.notEqual((await service.inspect(deck.id)).revision,inspected.revision,'Profile edits must change the deck revision');
+    const validated=await service.validate(deck.id);assert.equal(validated.ok,true,JSON.stringify(validated));
+    assert.throws(()=>deckSchema.parse({...fixture,brand:'@profile/../escape.json'}));
+    const orphan=path.join(root,'orphan');await mkdir(orphan);
+    await writeFile(path.join(orphan,'deck.json'),JSON.stringify({...fixture,brand:'@profile/brand.json'}));
+    await assert.rejects(loadSource(orphan),/needs a profile/);
   } finally {service.catalog.close();await rm(root,{recursive:true,force:true});}
 });
 test('real stdio MCP operates the shared service and exposes no source edits', async () => {

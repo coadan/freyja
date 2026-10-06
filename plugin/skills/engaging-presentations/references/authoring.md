@@ -17,6 +17,11 @@ returns its manifest, brand, dependency graph, revision and SDK source path.
 }
 ```
 
+Optional `profile` is the relative path from the deck to a profile directory.
+Optional per-slide `variant` (an identifier such as `section`) adds `variant-<name>`
+and `data-variant` to the slide canvas so profile or deck CSS can restyle the whole
+slide, including its background and chrome.
+
 `steps[0]` is entry. Four labels mean steps 0–3, not four extra reveals. Stable IDs
 preserve links when slides move. `chrome: "bare"` omits the regular title for a
 centered title or custom scene. Title, order and step labels have one home: the
@@ -55,6 +60,31 @@ Handle genuinely exploratory interactions locally when they are part of the demo
 `brand.json` has `name`, optional `logo`, `font`, optional `headingFont`, `radius`
 and colors: `background`, `foreground`, `muted`, `accent`, `surface`, `border`,
 `success`, `warning`, `danger`. Deck CSS can use `var(--accent)` etc.
+
+Optional `tokens` maps extra names to values, each exposed as a CSS variable
+(`"tokens": {"lime": "#A0EB23"}` becomes `var(--lime)`).
+
+## Profiles
+
+A profile directory holds `profile.json`:
+
+```json
+{
+  "version": 1, "name": "Acme", "description": "Acme presentation house style",
+  "template": "template",
+  "styles": ["styles/acme.css"],
+  "guidelines": [{"file": "guidelines/voice.md", "purpose": "Tone of voice for slide copy"}]
+}
+```
+
+`create_presentation({profile})` copies `template` (a complete deck directory) and
+records the relative `profile` path in `deck.json`. A deck references profile files
+with `@profile/<path>`: `"brand": "@profile/brand.json"`, a logo, or a TSX/CSS
+import such as `import {Statement} from '@profile/kit'`. Profile `styles` load after
+the player's base styles and before deck CSS, so a deck can still override them.
+Profile files count toward the deck revision. Restart the preview after changing
+a deck's `profile` path. Profile components may import `react` and `@freyja/sdk`
+only; other packages don't resolve from outside the application checkout.
 
 Import local assets and styles from TSX so Vite bundles them. Relative imports
 share custom components between slides. Official logos are ordinary assets;

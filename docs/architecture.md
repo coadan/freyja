@@ -28,6 +28,13 @@ one `{slideId, step}` position. Keys, tabs, jump, URL and MCP navigation update 
 position; Reveal receives its derived slide/fragment position. Slide components
 render from `step`. No topic-specific behavior belongs in this controller.
 
+A deck may name a profile directory: a shared brand, styles, React components,
+starter template and written guidelines. The deck references it by relative path,
+so a repository of decks and its profile move together. Preview and build add the
+profile to Vite's allowed roots and the `@profile` alias, load its styles after the
+player's base CSS, and hash its files into the deck revision. Profiles stay source:
+the runtime knows their structure, never a particular brand.
+
 The SDK offers optional visual/reveal helpers. Chat, maps, diagrams and other
 demonstrations live in deck files. Themes are separate JSON tokens; custom CSS
 and assets are imported normally. No mandatory presentation narrative is imposed

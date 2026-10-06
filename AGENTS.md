@@ -8,7 +8,7 @@ See [contribution guidance](CONTRIBUTING.md) and the [docs index](docs/README.md
 - The browser is the presentation interface, with slide navigation. No studio,
   source editor, notes view or presenter dashboard.
 - SQLite stores catalog and inspection/build metadata, not authoritative slides.
-- Keep topic and brand choices in deck source, not the runtime.
+- Keep topic and brand choices in deck or profile source, not the runtime.
 - One `{slideId, step}` position drives keys, tabs, URLs and MCP navigation.
 - Preserve the distinction between rendering a demonstration and proving its claims.
 - `npm run check` verifies types, service/MCP behavior and real browser navigation.

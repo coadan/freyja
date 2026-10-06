@@ -22,6 +22,17 @@ for every slide. Separate actual behavior, illustrative scenarios and assumption
 
 For new decks or substantial restructuring, read [storycraft](references/storycraft.md).
 
+## Follow the deck's profile
+
+A profile is a shared directory of brand, styles, components, a starter template
+and written guidelines, for example an organization's presentation house style.
+When the user names a profile or brand that has one, scaffold with
+`create_presentation({profile: <directory>})`. When `inspect_presentation` returns
+a `profile`, read every guideline it lists before writing or revising slides, and
+follow them over the generic advice here where they conflict. Import shared
+components from `@profile/...` instead of copying them into the deck. Propose
+changes to the profile itself only when the user asks for them; it affects every deck.
+
 ## Author directly in source
 
 Use `create_presentation` to scaffold, or `inspect_presentation` to locate existing

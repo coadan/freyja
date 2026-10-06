@@ -1,0 +1,6 @@
+{
+  "version": 1, "id": "template", "title": "Template", "brand": "@profile/brand.json",
+  "slides": [
+    {"id":"intro","title":"Template","file":"slides/intro.tsx","chrome":"bare","variant":"inverse","purpose":"Open with the profile's inverse variant","steps":["Opening"]}
+  ]
+}

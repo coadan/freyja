@@ -1,11 +1,16 @@
 import path from 'node:path';
 import { cp, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { Catalog } from '../storage/catalog.ts';
-import { loadSource, revision, sourceGraph, exists, sourceFiles, inside } from '../storage/sources.ts';
+import { loadSource, loadProfile, revision, sourceGraph, exists, sourceFiles, inside, type Profile } from '../storage/sources.ts';
 import { identifier, normalizePosition, type Position } from '../shared/manifest.ts';
 import { appRoot, compile } from './vite.ts';
 import ts from 'typescript';
 
+function describeProfile(profile: Profile) {
+  return {name: profile.manifest.name, description: profile.manifest.description, root: profile.root,
+    guidelines: profile.manifest.guidelines.map(g => ({path: path.join(profile.root, g.file), purpose: g.purpose})),
+    styles: profile.manifest.styles.map(file => path.join(profile.root, file))};
+}
 export class Presentations {
   readonly catalog: Catalog;
   readonly positions = new Map<string, Position>();
@@ -14,23 +19,27 @@ export class Presentations {
     const source = await realpath(directory), {manifest} = await loadSource(source);
     return this.catalog.register(manifest.id, manifest.title, source, await revision(source));
   }
-  async create({id, title, theme = 'editorial', directory}: {id: string; title: string; theme?: 'editorial' | 'midnight'; directory?: string}) {
+  async create({id, title, theme = 'editorial', directory, profile: profileDirectory}: {id: string; title: string; theme?: 'editorial' | 'midnight'; directory?: string; profile?: string}) {
     identifier.parse(id);
     if (this.catalog.list().some(d => d.id === id)) throw new Error(`Presentation already exists: ${id}`);
     const destination = path.resolve(directory ?? path.join(this.dataDir, 'presentations', id));
     if (await exists(destination)) throw new Error(`Destination already exists: ${destination}`);
-    await cp(path.join(appRoot, 'templates/story'), destination, {recursive: true, errorOnExist: true});
+    const profile = profileDirectory ? await loadProfile(path.resolve(profileDirectory)) : undefined;
+    const template = profile?.manifest.template ? await inside(profile.root, profile.manifest.template) : path.join(appRoot, 'templates/story');
+    await cp(template, destination, {recursive: true, errorOnExist: true});
     const manifest = JSON.parse(await readFile(path.join(destination, 'deck.json'), 'utf8'));
     manifest.id = id; manifest.title = title; manifest.slides[0].title = title;
+    // Decks reference their profile relatively so a repository of decks and its profile can move together.
+    if (profile) manifest.profile = path.relative(await realpath(destination), profile.root).split(path.sep).join('/');
     await writeFile(path.join(destination, 'deck.json'), JSON.stringify(manifest, null, 2) + '\n');
-    await cp(path.join(appRoot, 'templates/brands', `${theme}.json`), path.join(destination, 'brand.json'));
+    if (!profile) await cp(path.join(appRoot, 'templates/brands', `${theme}.json`), path.join(destination, 'brand.json'));
     return this.register(destination);
   }
   async inspect(id: string) {
-    const deck = this.catalog.get(id), {manifest, brand} = await loadSource(deck.source);
+    const deck = this.catalog.get(id), {manifest, brand, profile} = await loadSource(deck.source);
     if (manifest.id !== id) throw new Error('Deck ID changed; register under the new ID');
     const current = await this.register(deck.source);
-    return {...current, manifest, brand, position: this.positions.get(id) ?? {slideId: manifest.slides[0].id, step: 0}, graph: await sourceGraph(deck.source, manifest), sdk: path.join(appRoot, 'src/presentation-sdk/index.tsx'), authoring: 'Edit source files directly. MCP operates and inspects the presentation.'};
+    return {...current, manifest, brand, profile: profile && describeProfile(profile), position: this.positions.get(id) ?? {slideId: manifest.slides[0].id, step: 0}, graph: await sourceGraph(deck.source, manifest), sdk: path.join(appRoot, 'src/presentation-sdk/index.tsx'), authoring: profile ? 'Edit source files directly. Read every profile guideline before writing or revising slides, and import shared profile components from @profile/.' : 'Edit source files directly. MCP operates and inspects the presentation.'};
   }
   async position(id: string, target: Position) {
     const {manifest} = await loadSource(this.catalog.get(id).source);

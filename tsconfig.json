@@ -6,5 +6,6 @@
     "skipLibCheck": true, "noEmit": true, "types": ["node", "vite/client"],
     "paths": {"@freyja/sdk": ["./src/presentation-sdk/index.tsx"]}
   },
-  "include": ["src", "tests", "templates"]
+  "include": ["src", "tests", "templates"],
+  "exclude": ["tests/fixtures"]
 }

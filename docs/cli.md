@@ -6,7 +6,7 @@ server status goes to stderr.
 
 | Command | Arguments / purpose |
 | --- | --- |
-| `create` | `--id my-talk --title "My talk" [--theme editorial\|midnight] [--directory /path/to/new-deck]` |
+| `create` | `--id my-talk --title "My talk" [--theme editorial\|midnight] [--directory /path/to/new-deck] [--profile /path/to/profile]` |
 | `register` | `--directory /path/to/existing-deck` |
 | `list` | List registered presentations |
 | `inspect` | `--id my-talk`; source graph, brand, steps and revision |

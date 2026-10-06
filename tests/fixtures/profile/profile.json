@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "Fixture",
+  "description": "A minimal profile used by the Freyja test suite.",
+  "template": "template",
+  "styles": ["styles/profile.css"],
+  "guidelines": [{"file": "guidelines/voice.md", "purpose": "Tone of voice for slide copy"}]
+}

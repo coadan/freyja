@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtemp, rm, readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, writeFile, cp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createServer } from 'node:http';
@@ -87,6 +87,17 @@ try {
   const midnight=await app.service.create({id:'another-topic',title:'Another topic',theme:'midnight'});
   const dark=await browser.newPage();await dark.goto(await app.preview(midnight.id));await dark.waitForSelector('.reveal.ready');
   assert.equal(await dark.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--background')),'#101629');
+  const profileDir=path.join(root,'repo/profile');await cp(path.join(import.meta.dirname,'fixtures/profile'),profileDir,{recursive:true});
+  const profiled=await app.service.create({id:'profile-talk',title:'Profiled talk',directory:path.join(root,'repo/decks/profile-talk'),profile:profileDir});
+  const branded=await browser.newPage();const brandErrors:string[]=[];branded.on('pageerror',e=>brandErrors.push(e.message));
+  await branded.goto(await app.preview(profiled.id));await branded.waitForSelector('.reveal.ready');
+  assert.equal(await branded.locator('.present .fixture-badge').textContent(),'Profiled talk');
+  assert.equal(await branded.locator('.present .fixture-badge').evaluate(e=>getComputedStyle(e).color),'rgb(255, 0, 170)','Brand tokens and profile styles must reach @profile components');
+  assert.equal(await branded.locator('.present .f-canvas').evaluate(e=>e.getAttribute('data-variant')),'inverse');
+  assert.equal(await branded.locator('.present .f-canvas').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(17, 17, 17)');
+  assert.ok((await readFile((await app.operations.render_slide({id:profiled.id,slideId:'intro',step:0}) as {path:string}).path)).length>5000);
+  const profiledBuild=await app.service.build(profiled.id);assert.ok((await readFile(profiledBuild.entry,'utf8')).includes('<div id="root">'));
+  assert.deepEqual(brandErrors,[]);
   assert.deepEqual(errors,[]);assert.equal(await page.locator('[role=alert]').count(),0);
-  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build, second theme and PDF final/all-step exports with isolated downloads.');
+  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build, second theme, profile styles/tokens/variants/kit imports and PDF final/all-step exports with isolated downloads.');
 }finally{await browser.close();if(staticServer)await new Promise<void>(resolve=>staticServer!.close(()=>resolve()));await app.close();await rm(root,{recursive:true,force:true});}

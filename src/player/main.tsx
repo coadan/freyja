@@ -3,11 +3,12 @@ import { createRoot } from 'react-dom/client';
 import { Deck, Slide, Fragment } from '@revealjs/react';
 import type { RevealApi } from 'reveal.js';
 import { ArrowLeft, ArrowRight, Download, Grid2X2, Maximize, Search, X } from 'lucide-react';
-import { brand, manifest, components, logoUrl } from 'virtual:freyja-deck';
 import { advance, normalizePosition, type Position } from '../shared/manifest.ts';
 import { PresentationContext } from '../presentation-sdk/index.tsx';
 import 'reveal.js/reveal.css';
 import './style.css';
+// Deck and profile CSS load after the player's base styles so they can override them.
+import { brand, manifest, components, logoUrl } from 'virtual:freyja-deck';
 
 function fromHash(): Position {const [id, step] = location.hash.slice(2).split('/'); return normalizePosition(manifest, {slideId: id ?? manifest.slides[0].id, step: Number(step ?? 0)});}
 const config = {width: 1280, height: 720, margin: 0.015, center: false, hash: false, controls: false, progress: false, keyboard: false, touch: false, transition: 'none' as const};
@@ -24,7 +25,7 @@ function Player() {
   const index = manifest.slides.findIndex(s => s.id === position.slideId);
   useEffect(() => {
     document.title = manifest.title;
-    for (const [key, value] of Object.entries(brand.colors)) document.documentElement.style.setProperty(`--${key}`, value);
+    for (const [key, value] of Object.entries({...brand.colors, ...brand.tokens})) document.documentElement.style.setProperty(`--${key}`, value);
     document.documentElement.style.setProperty('--font', brand.font);
     document.documentElement.style.setProperty('--heading-font', brand.headingFont ?? brand.font);
     document.documentElement.style.setProperty('--radius', `${brand.radius}px`);
@@ -69,7 +70,7 @@ function Player() {
   return <>
     <Deck deckRef={deck} config={config} onReady={() => setReady(true)}>{manifest.slides.map((slide, i) => {
       const Component = components[slide.id], step = i === index ? position.step : 0;
-      return <Slide key={slide.id}><div className={`f-canvas ${slide.chrome === 'bare' ? 'bare' : ''}`} data-slide-id={slide.id}>
+      return <Slide key={slide.id}><div className={`f-canvas ${slide.chrome === 'bare' ? 'bare' : ''} ${slide.variant ? `variant-${slide.variant}` : ''}`} data-slide-id={slide.id} data-variant={slide.variant}>
         <header className="f-header"><span>{logoUrl ? <img src={logoUrl} alt={brand.name}/> : brand.name}</span><span>{slide.section}</span></header>
         {slide.chrome !== 'bare' && <h1 className="f-slide-title">{slide.title}</h1>}
         <main className="f-body"><PresentationContext.Provider value={{slide, step, brand, goTo: n => goTo({slideId: slide.id, step: n})}}><SlideError><Component step={step} slide={slide} goTo={n => goTo({slideId: slide.id, step: n})}/></SlideError></PresentationContext.Provider></main>
