@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile, readFile, symlink, cp, mkdir, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { deckSchema, advance, normalizePosition } from '../src/shared/manifest.ts';
+import { deckSchema, advance, normalizePosition, slideTransition } from '../src/shared/manifest.ts';
+import { transitionXml } from '../src/application/pptx.ts';
 import { Presentations } from '../src/application/presentations.ts';
 import { inside, loadSource } from '../src/storage/sources.ts';
 import { appRoot } from '../src/application/vite.ts';
@@ -24,6 +25,17 @@ test('navigation reverses every forward transition including slide boundaries', 
 test('manifest rejects duplicate identities and escaping paths', () => {
   assert.throws(()=>deckSchema.parse({...fixture, slides:[fixture.slides[0],fixture.slides[0]]}));
   assert.throws(()=>deckSchema.parse({...fixture, slides:[{...fixture.slides[0],file:'../escape.tsx'}]}));
+});
+test('one transition schema maps to PowerPoint, with slide overrides over the deck default', () => {
+  const deck=deckSchema.parse({...fixture,transition:{type:'fade'},slides:[{...fixture.slides[0],transition:{type:'push',direction:'up',speed:'slow'}},fixture.slides[1]]});
+  assert.deepEqual(slideTransition(deck,deck.slides[0]),{type:'push',direction:'up',speed:'slow'});
+  assert.deepEqual(slideTransition(deck,deck.slides[1]),{type:'fade',speed:'medium',direction:'left'});
+  assert.equal(slideTransition(fixture,fixture.slides[0]).type,'none');
+  assert.throws(()=>deckSchema.parse({...fixture,transition:{type:'cube'}}));
+  assert.equal(transitionXml(slideTransition(deck,deck.slides[0])),'<p:transition spd="slow"><p:push dir="u"/></p:transition>');
+  assert.equal(transitionXml(slideTransition(deck,deck.slides[1])),'<p:transition spd="med"><p:fade/></p:transition>');
+  assert.equal(transitionXml('step'),'<p:transition spd="fast"><p:fade/></p:transition>');
+  assert.equal(transitionXml(slideTransition(fixture,fixture.slides[0])),'');
 });
 test('catalog persists, direct source edits change inspection and duplicate create preserves files', async () => {
   const root=await mkdtemp(path.join(tmpdir(),'freyja-catalog-'));

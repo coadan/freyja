@@ -1,6 +1,6 @@
 {
   "name": "freyja",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Explain complex topics through engaging HTML presentations and step-by-step interaction demos, authored as TSX.",
   "author": {
     "name": "coadan"

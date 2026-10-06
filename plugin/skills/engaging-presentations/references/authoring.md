@@ -22,6 +22,11 @@ Optional per-slide `variant` (an identifier such as `section`) adds `variant-<na
 and `data-variant` to the slide canvas so profile or deck CSS can restyle the whole
 slide, including its background and chrome.
 
+Optional `transition` sets how slides enter, as a deck default with per-slide overrides:
+`{"type": "fade" | "push" | "none", "speed": "fast" | "medium" | "slow", "direction": "left" |
+"right" | "up" | "down"}`. One schema drives the player and the PPTX export; step reveals within
+a slide stay quick fades. The player pushes horizontally; PPTX honours every direction.
+
 `steps[0]` is entry. Four labels mean steps 0–3, not four extra reveals. Stable IDs
 preserve links when slides move. `chrome: "bare"` omits the regular title for a
 centered title or custom scene. Title, order and step labels have one home: the

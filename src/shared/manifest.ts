@@ -6,16 +6,25 @@ export const relativeFile = z.string().refine(s => !!s && !s.startsWith('/') && 
 export const sourceRef = z.string().refine(s => relativeFile.safeParse(s.startsWith('@profile/') ? s.slice(9) : s).success, 'Use a relative path inside the presentation or @profile/<path>');
 // Profiles are shared directories outside the deck, so their path may leave it.
 export const profilePath = z.string().refine(s => !!s && !s.startsWith('/') && !s.includes('\\') && !s.split('/').some(p => p === '.' || !p), 'Use a relative path from the presentation to its profile directory');
+// One transition vocabulary for every output. The player maps it to Reveal, exports to PowerPoint.
+// It describes how a slide enters; step reveals within a slide stay quick fades.
+export const transitionSchema = z.object({
+  type: z.enum(['none', 'fade', 'push']).default('none'),
+  speed: z.enum(['fast', 'medium', 'slow']).default('medium'),
+  direction: z.enum(['left', 'right', 'up', 'down']).default('left'),
+}).strict();
 export const slideSchema = z.object({
   id: identifier, title: z.string().min(1), file: relativeFile.refine(s => s.endsWith('.tsx'), 'Slide must be TSX'),
   section: z.string().optional(), purpose: z.string().optional(), chrome: z.enum(['standard', 'bare']).default('standard'),
   variant: identifier.optional(),
+  transition: transitionSchema.optional(),
   steps: z.array(z.string().min(1)).min(1).max(40),
   sources: z.array(z.string()).default([]),
 }).strict();
 export const deckSchema = z.object({
   version: z.literal(1), id: identifier, title: z.string().min(1),
   profile: profilePath.optional(),
+  transition: transitionSchema.optional(),
   brand: sourceRef.default('brand.json'),
   slides: z.array(slideSchema).min(1).max(200),
 }).strict().superRefine((deck, ctx) => {
@@ -42,6 +51,11 @@ export type DeckManifest = z.infer<typeof deckSchema>;
 export type SlideManifest = z.infer<typeof slideSchema>;
 export type Brand = z.infer<typeof brandSchema>;
 export type ProfileManifest = z.infer<typeof profileSchema>;
+export type Transition = z.infer<typeof transitionSchema>;
+/** How a slide enters: its own transition, else the deck default, else none. */
+export function slideTransition(deck: DeckManifest, slide: SlideManifest): Transition {
+  return slide.transition ?? deck.transition ?? {type: 'none', speed: 'medium', direction: 'left'};
+}
 export type Position = {slideId: string; step: number};
 
 export function normalizePosition(deck: DeckManifest, position: Position): Position {

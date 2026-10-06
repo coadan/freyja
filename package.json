@@ -1,6 +1,6 @@
 {
   "name": "freyja",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -20,6 +20,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.31.0",
     "@revealjs/react": "0.2.2",
+    "jszip": "^3.10.2",
     "lucide-react": "^1.47.0",
     "pdf-lib": "1.17.1",
     "pptxgenjs": "^4.0.1",
@@ -36,7 +37,6 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/reveal.js": "^5.2.0",
-    "jszip": "^3.10.2",
     "playwright": "1.63.0"
   },
   "description": "Interactive HTML presentations and step-by-step demos, authored as TSX with local MCP tools.",

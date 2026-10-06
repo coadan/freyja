@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Deck, Slide, Fragment } from '@revealjs/react';
 import type { RevealApi } from 'reveal.js';
 import { ArrowLeft, ArrowRight, Download, Grid2X2, Maximize, Presentation, Search, X } from 'lucide-react';
-import { advance, normalizePosition, type Position } from '../shared/manifest.ts';
+import { advance, normalizePosition, slideTransition, type Position } from '../shared/manifest.ts';
 import { PresentationContext } from '../presentation-sdk/index.tsx';
 import 'reveal.js/reveal.css';
 import './style.css';
@@ -28,6 +28,7 @@ function Player() {
     return () => {removeEventListener('pointermove', reveal); removeEventListener('pointerdown', reveal);};
   }, []);
   const capture = new URLSearchParams(location.search).has('capture');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const goTo = useCallback((p: Position) => {setPosition(normalizePosition(manifest, p));}, []);
   const index = manifest.slides.findIndex(s => s.id === position.slideId);
   useEffect(() => {
@@ -77,7 +78,9 @@ function Player() {
   return <>
     <Deck deckRef={deck} config={config} onReady={() => setReady(true)}>{manifest.slides.map((slide, i) => {
       const Component = components[slide.id], step = i === index ? position.step : 0;
-      return <Slide key={slide.id}><div className={`f-canvas ${slide.chrome === 'bare' ? 'bare' : ''} ${slide.variant ? `variant-${slide.variant}` : ''}`} data-slide-id={slide.id} data-variant={slide.variant}>
+      // Captures and exports render one state at a time; reduced-motion viewers get none either.
+      const transition = capture || reducedMotion ? undefined : slideTransition(manifest, slide);
+      return <Slide key={slide.id} transition={transition && transition.type !== 'none' ? (transition.type === 'push' ? 'slide' : 'fade') : 'none'} transitionSpeed={transition?.speed === 'medium' ? 'default' : transition?.speed}><div className={`f-canvas ${slide.chrome === 'bare' ? 'bare' : ''} ${slide.variant ? `variant-${slide.variant}` : ''}`} data-slide-id={slide.id} data-variant={slide.variant}>
         <header className="f-header"><span>{logoUrl ? <img src={logoUrl} alt={brand.name}/> : brand.name}</span><span>{slide.section}</span></header>
         {slide.chrome !== 'bare' && <h1 className="f-slide-title">{slide.title}</h1>}
         <main className="f-body"><PresentationContext.Provider value={{slide, step, brand, goTo: n => goTo({slideId: slide.id, step: n})}}><SlideError><Component step={step} slide={slide} goTo={n => goTo({slideId: slide.id, step: n})}/></SlideError></PresentationContext.Provider></main>

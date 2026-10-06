@@ -91,5 +91,6 @@ node scripts/cli.mjs pptx --id my-talk --all-steps
 The PPTX uses the same isolated rendering as the PDF. Each slide becomes a full-bleed PNG at
 2× resolution on a 16:9 PowerPoint slide, with the slide title as the image's alt text. The
 result looks exactly like the deck in PowerPoint, Keynote and Google Slides, but text and shapes
-aren't editable there. Files are stored under the data directory's `exports/`. The live
+aren't editable there. Slides enter with the transitions declared in `deck.json`; with
+`--all-steps`, further steps of the same slide fade quickly so they read as reveals. Files are stored under the data directory's `exports/`. The live
 presenter has an **Export PPTX** toolbar button; MCP `export_pptx` takes `allSteps: true`.

@@ -71,3 +71,8 @@ derived artifacts in the data directory, not presentation source.
 PPTX export walks the same rendered positions and captures each one as a 2× PNG, which
 pptxgenjs places full-bleed on a 16:9 slide. Converting arbitrary React, SVG and WebGL scenes
 into native PowerPoint shapes isn't attempted; the image keeps the slide faithful.
+
+Transitions have one schema in `deck.json` (deck default, per-slide override). The player maps
+it to Reveal's `fade`/`slide` with its speed; the PPTX export writes the matching `<p:fade/>` or
+`<p:push/>` element into each slide, since pptxgenjs has no transition API. Captures, exports
+and reduced-motion viewers render without transitions.

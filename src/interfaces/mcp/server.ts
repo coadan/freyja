@@ -6,7 +6,7 @@ import path from 'node:path';
 import {toolDefinitions} from '../../shared/operations.ts';
 
 export function createMcp(call: (operation: string, args: unknown) => Promise<any>) {
-  const server = new McpServer({name: 'freyja', version: '0.1.0'});
+  const server = new McpServer({name: 'freyja', version: '0.2.0'});
   for (const [name, description, inputSchema, readOnly] of toolDefinitions) {
     server.registerTool(name, {description, inputSchema, annotations: {readOnlyHint: readOnly, destructiveHint: false, openWorldHint: false}}, async (args: Record<string, unknown>): Promise<CallToolResult> => {
       try {

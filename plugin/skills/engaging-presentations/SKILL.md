@@ -73,8 +73,16 @@ Validate and build; compilation does not prove visual quality or the demonstrate
 system's claims. Walk forward/back through changed interactions and check tabs,
 slide jumps and deep-link reloads. Use `export_pdf` for a PDF handout: final rendered
 slides by default, or `allSteps: true` to include every interaction state. Use `export_pptx` when
-the user needs PowerPoint or Google Slides: each slide becomes a full-bleed image, faithful but
-not editable. Check exports when requested; interactive scenes become static pages. Return the source and
+the user needs PowerPoint, Keynote or Google Slides: each slide becomes a full-bleed image,
+faithful but not editable, with the transitions declared in `deck.json`. Check exports when
+requested; interactive scenes become static pages.
+
+After a PPTX export, ask the user once whether they also want the live deck published as a
+private claude.ai Artifact, a link that keeps navigation and step reveals. Publish only after a
+clear yes, and only when the client offers an Artifact tool. Mention it first if the content
+looks internal or confidential. To publish, `build_presentation`, then publish the build's
+`index.html` as the page and its `assets/` files alongside it. Offer the link; the user decides
+who it is shared with. Return the source and
 preview locations.
 
 The app only presents: no source editor, notes view or dashboard. Keep supporting

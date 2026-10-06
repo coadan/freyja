@@ -76,8 +76,12 @@ try {
   const firstImage=await deckZip.file(media[0])!.async('nodebuffer');
   assert.equal(firstImage.readUInt32BE(16),2560,'Slides render at 2x width');
   assert.match(await deckZip.file('ppt/slides/slide1.xml')!.async('string'),new RegExp(manifest.slides[0].title.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
-  const allPptx=await app.operations.export_pptx({id:created.id,allSteps:true}) as {slides:number};
+  assert.doesNotMatch(await deckZip.file('ppt/slides/slide2.xml')!.async('string'),/p:transition/,'Decks without transitions export none');
+  const allPptx=await app.operations.export_pptx({id:created.id,allSteps:true}) as {slides:number;path:string};
   assert.equal(allPptx.slides,expectedSteps);
+  const allZip=await JSZip.loadAsync(await readFile(allPptx.path));
+  assert.match(await allZip.file('ppt/slides/slide3.xml')!.async('string'),/<p:transition spd="fast">/,'Further steps of a slide fade quickly');
+
   const rejectedPdf=await fetch(`${app.url}/api/pdf/${created.id}`,{method:'POST',headers:{Origin:'https://foreign.example','Content-Type':'application/json'},body:'{}'});
   assert.equal(rejectedPdf.status,403);
   const downloadEvent=page.waitForEvent('download');
@@ -120,7 +124,10 @@ try {
   assert.equal(await branded.locator('.present .f-canvas').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(17, 17, 17)');
   assert.ok((await readFile((await app.operations.render_slide({id:profiled.id,slideId:'intro',step:0}) as {path:string}).path)).length>5000);
   const profiledBuild=await app.service.build(profiled.id);assert.ok((await readFile(profiledBuild.entry,'utf8')).includes('<div id="root">'));
+  assert.equal(await branded.locator('.reveal .slides > section').first().getAttribute('data-transition'),'fade','The deck transition reaches Reveal');
+  const profiledPptx=await app.operations.export_pptx({id:profiled.id}) as {path:string};
+  assert.match(await (await JSZip.loadAsync(await readFile(profiledPptx.path))).file('ppt/slides/slide1.xml')!.async('string'),/<p:transition spd="med"><p:fade\/><\/p:transition>/,'The same transition reaches PowerPoint');
   assert.deepEqual(brandErrors,[]);
   assert.deepEqual(errors,[]);assert.equal(await page.locator('[role=alert]').count(),0);
-  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build, second theme, profile styles/tokens/variants/kit imports, PDF final/all-step exports and PPTX image exports with isolated downloads.');
+  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build, second theme, profile styles/tokens/variants/kit imports, PDF final/all-step exports and PPTX image exports with deck transitions and isolated downloads.');
 }finally{await browser.close();if(staticServer)await new Promise<void>(resolve=>staticServer!.close(()=>resolve()));await app.close();await rm(root,{recursive:true,force:true});}

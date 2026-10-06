@@ -79,7 +79,7 @@ export async function startApp(dataDir: string, port = 0) {
       if (!/^127\.0\.0\.1:\d+$/.test(host)) return json(res, 403, {error: 'Loopback requests only'});
       if (req.headers.origin && req.headers.origin !== url) return json(res, 403, {error: 'Origin rejected'});
       const route = new URL(req.url ?? '/', url || 'http://127.0.0.1').pathname;
-      if (route === '/api/health') return json(res, 200, {app: 'freyja', version: '0.1.0'});
+      if (route === '/api/health') return json(res, 200, {app: 'freyja', version: '0.2.0'});
       if (route === '/api/operations' && req.method === 'POST') {
         if (req.headers.authorization !== `Bearer ${token}`) return json(res, 403, {error: 'App credential required'});
         const {operation, args} = await body(req);
