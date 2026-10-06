@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/freyja-logo.png" alt="Freyja pixel projector" width="360">
+  <img src="assets/freyja-logo.png" alt="Freyja pixel goddess in plum and gold, holding a turquoise light" width="360">
 </p>
 
 # Freyja
