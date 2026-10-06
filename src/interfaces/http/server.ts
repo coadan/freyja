@@ -10,6 +10,7 @@ import type { Position } from '../../shared/manifest.ts';
 import {toolDefinitions} from '../../shared/operations.ts';
 import {z} from 'zod';
 import {exportPdf} from '../../application/pdf.ts';
+import {exportPptx} from '../../application/pptx.ts';
 
 export async function startApp(dataDir: string, port = 0) {
   const service = new Presentations(dataDir), token = randomBytes(24).toString('hex');
@@ -41,6 +42,11 @@ export async function startApp(dataDir: string, port = 0) {
       const deck = await service.inspect(args.id), allSteps = args.allSteps ?? false;
       const output = path.join(dataDir, 'exports', args.id, deck.revision, `${args.id}${allSteps ? '-all-steps' : ''}.pdf`);
       return {id: args.id, revision: deck.revision, ...await exportPdf({url: await preview(args.id), manifest: deck.manifest, output, allSteps})};
+    },
+    export_pptx: async args => {
+      const deck = await service.inspect(args.id), allSteps = args.allSteps ?? false;
+      const output = path.join(dataDir, 'exports', args.id, deck.revision, `${args.id}${allSteps ? '-all-steps' : ''}.pptx`);
+      return {id: args.id, revision: deck.revision, ...await exportPptx({url: await preview(args.id), manifest: deck.manifest, output, allSteps})};
     },
     render_slide: async args => {
       const deck = await service.inspect(args.id), slide = deck.manifest.slides.find(s => s.id === args.slideId);
@@ -82,13 +88,15 @@ export async function startApp(dataDir: string, port = 0) {
         const validated = z.object(definition[2]).strict().parse(args ?? {});
         return json(res, 200, {result: await operations[operation](validated)});
       }
-      const pdf = route.match(/^\/api\/pdf\/([a-z][a-z0-9-]*)$/);
-      if (pdf && req.method === 'POST') {
+      const download = route.match(/^\/api\/(pdf|pptx)\/([a-z][a-z0-9-]*)$/);
+      if (download && req.method === 'POST') {
         if (req.headers.origin !== url) return json(res, 403, {error: 'Same-origin presenter request required'});
         const options = z.object({allSteps: z.boolean().optional()}).strict().parse(await body(req));
-        const result = await operations.export_pdf({id: pdf[1], ...options}) as {path: string};
+        const format = download[1] as 'pdf' | 'pptx';
+        const result = await operations[`export_${format}`]({id: download[2], ...options}) as {path: string};
         const content = await readFile(result.path);
-        res.writeHead(200, {'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${path.basename(result.path)}"`, 'Cache-Control': 'no-store'});
+        const type = format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+        res.writeHead(200, {'Content-Type': type, 'Content-Disposition': `attachment; filename="${path.basename(result.path)}"`, 'Cache-Control': 'no-store'});
         res.end(content); return;
       }
       const events = route.match(/^\/api\/events\/([a-z][a-z0-9-]*)$/);

@@ -66,6 +66,7 @@ Commands:
   validate   --id <id>
   build      --id <id>
   pdf        --id <id> [--all-steps] (final rendered slides by default)
+  pptx       --id <id> [--all-steps] (PowerPoint, one image per rendered slide)
   serve      [--port <number>] (default 4174; 0 chooses an available port)
   mcp        Run the stdio MCP interface
   stop       Stop the shared local app
@@ -93,10 +94,11 @@ Source edits control slides, order, demos and branding. See docs/cli.md.`);
       register: ['register_presentation', {directory: values.directory}], inspect: ['inspect_presentation', {id}],
       preview: ['preview_presentation', {id}], open: ['open_presentation', {id, slideId: values.slide, step: Number(values.step ?? 0)}],
       pdf: ['export_pdf', {id, allSteps: values['all-steps'] ?? false}],
+      pptx: ['export_pptx', {id, allSteps: values['all-steps'] ?? false}],
       validate: ['validate_presentation', {id}], build: ['build_presentation', {id}],
       capture: ['render_slide', {id, slideId: values.slide, step: Number(values.step ?? 0)}],
     };
-    if (!mappings[command]) throw new Error('Commands: serve, mcp, stop, list, create, register, inspect, preview, open, validate, capture, build, pdf');
+    if (!mappings[command]) throw new Error('Commands: serve, mcp, stop, list, create, register, inspect, preview, open, validate, capture, build, pdf, pptx');
     console.log(JSON.stringify(await call(...mappings[command]), null, 2));
   }
 } catch (error) {console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1;}

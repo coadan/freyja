@@ -55,7 +55,7 @@ for (const host of ['codex', 'claude'] as const) {
         env: {...environment, FREYJA_ROOT: appRoot, FREYJA_DATA_DIR: data}, stderr: 'pipe'});
       await client.connect(transport);
       const tools = (await client.listTools()).tools;
-      assert.equal(tools.length, 11);
+      assert.equal(tools.length, 12);
       const created = await client.callTool({name: 'create_presentation', arguments: {id: `${host}-talk`, title: 'A shared workflow'}});
       assert.equal(created.isError, undefined);
       const inspected = await client.callTool({name: 'inspect_presentation', arguments: {id: `${host}-talk`}});

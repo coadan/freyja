@@ -15,6 +15,7 @@ server status goes to stderr.
 | `capture` | Same position arguments; capture a step without moving the presenter |
 | `validate` | `--id my-talk`; check source syntax and bundling |
 | `pdf` | `--id my-talk [--all-steps]`; export final slides or every step |
+| `pptx` | `--id my-talk [--all-steps]`; PowerPoint with one 2× image per rendered slide |
 | `build` | `--id my-talk`; produce a static export directory |
 | `serve` | `[--port 4174]`; foreground loopback service |
 | `mcp` | Run the stdio MCP interface |
@@ -79,3 +80,16 @@ It is omitted from static HTML exports because those have no local app backend.
 Use MCP `export_pdf` with `allSteps: true` for the expanded version. After upgrading
 the application, stop the existing service with `node scripts/cli.mjs stop`,
 then run preview again to load the updated backend.
+
+## PowerPoint export
+
+```sh
+node scripts/cli.mjs pptx --id my-talk
+node scripts/cli.mjs pptx --id my-talk --all-steps
+```
+
+The PPTX uses the same isolated rendering as the PDF. Each slide becomes a full-bleed PNG at
+2× resolution on a 16:9 PowerPoint slide, with the slide title as the image's alt text. The
+result looks exactly like the deck in PowerPoint, Keynote and Google Slides, but text and shapes
+aren't editable there. Files are stored under the data directory's `exports/`. The live
+presenter has an **Export PPTX** toolbar button; MCP `export_pptx` takes `allSteps: true`.

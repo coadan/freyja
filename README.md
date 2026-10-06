@@ -45,12 +45,15 @@ node scripts/cli.mjs capture --id my-talk --slide recovery --step 3
 node scripts/cli.mjs validate --id my-talk
 node scripts/cli.mjs build --id my-talk
 node scripts/cli.mjs pdf --id my-talk
+node scripts/cli.mjs pptx --id my-talk
 ```
 
 A build is a static directory you can serve over HTTP without the Freyja app.
 Imported assets are bundled; remote resources remain remote.
 
-Use **Export PDF** in the live presenter toolbar for a handout with one fully
+**Export PPTX** (or `pptx`) produces a PowerPoint file with one full-bleed 2× image per
+slide, for sharing where PowerPoint or Google Slides is expected; the slides look exactly like
+the deck but aren't editable shapes. Use **Export PDF** in the live presenter toolbar for a handout with one fully
 rendered, final-state page per slide. Text and diagrams remain sharp in the PDF.
 To include each interaction state, run `node scripts/cli.mjs pdf --id my-talk
 --all-steps`. PDF export requires Chromium and leaves the live position unchanged.
@@ -97,6 +100,7 @@ stdio MCP connection and development validation.
 | O | Slide overview |
 | F | Fullscreen |
 | Export PDF | Download final rendered slides (live preview) |
+| Export PPTX | Download a PowerPoint of rendered slide images (live preview) |
 | Escape | Close jump or overview |
 
 Stable slide IDs give durable `#/slide-id/step` links when the deck is reordered.
@@ -131,7 +135,7 @@ behavior and branding remain in each presentation.
 | Local service | Node HTTP server on 127.0.0.1, with server-sent events for navigation |
 | Metadata | SQLite through `node:sqlite` (catalog and build records, not slide content) |
 | Validation | Zod schemas for `deck.json`, `brand.json` and `profile.json` |
-| Screenshots and PDF | Playwright with headless Chromium; pdf-lib assembles the PDF |
+| Screenshots, PDF and PPTX | Playwright with headless Chromium; pdf-lib assembles the PDF, pptxgenjs the PPTX |
 | Icons | `lucide-react` |
 | Tests | Node's test runner and a Playwright browser suite |
 

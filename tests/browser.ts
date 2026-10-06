@@ -6,6 +6,7 @@ import path from 'node:path';
 import { createServer } from 'node:http';
 import { chromium } from 'playwright';
 import { PDFDocument, PDFName, PDFDict, PDFArray, PDFRawStream } from 'pdf-lib';
+import JSZip from 'jszip';
 import { startApp } from '../src/interfaces/http/server.ts';
 
 const root=await mkdtemp(path.join(tmpdir(),'freyja-browser-')),app=await startApp(root);
@@ -65,6 +66,18 @@ try {
   assert.equal((await PDFDocument.load(await readFile(allPdf.path))).getPageCount(),expectedSteps);
   assert.deepEqual((await app.operations.get_presentation_state({id:created.id}) as {position:unknown}).position,beforeExport.position);
   await position('decisions',2);
+  const pptx=await app.operations.export_pptx({id:created.id}) as {path:string;slides:number;mode:string};
+  assert.equal(pptx.slides,manifest.slides.length);assert.equal(pptx.mode,'final');
+  const deckZip=await JSZip.loadAsync(await readFile(pptx.path));
+  const slideXml=Object.keys(deckZip.files).filter(f=>/^ppt\/slides\/slide\d+\.xml$/.test(f));
+  assert.equal(slideXml.length,manifest.slides.length,'One PowerPoint slide per deck slide');
+  const media=Object.keys(deckZip.files).filter(f=>f.startsWith('ppt/media/')&&!f.endsWith('/'));
+  assert.equal(media.length,manifest.slides.length,'Each PowerPoint slide carries its rendered image');
+  const firstImage=await deckZip.file(media[0])!.async('nodebuffer');
+  assert.equal(firstImage.readUInt32BE(16),2560,'Slides render at 2x width');
+  assert.match(await deckZip.file('ppt/slides/slide1.xml')!.async('string'),new RegExp(manifest.slides[0].title.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  const allPptx=await app.operations.export_pptx({id:created.id,allSteps:true}) as {slides:number};
+  assert.equal(allPptx.slides,expectedSteps);
   const rejectedPdf=await fetch(`${app.url}/api/pdf/${created.id}`,{method:'POST',headers:{Origin:'https://foreign.example','Content-Type':'application/json'},body:'{}'});
   assert.equal(rejectedPdf.status,403);
   const downloadEvent=page.waitForEvent('download');
@@ -73,6 +86,10 @@ try {
   assert.equal(download.suggestedFilename(),`${created.id}.pdf`);
   assert.equal((await PDFDocument.load(await readFile(downloadPath))).getPageCount(),manifest.slides.length);
   await page.getByRole('button',{name:'Export PDF',exact:true}).waitFor();await position('decisions',2);
+  const pptxDownloadEvent=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Export PPTX',exact:true}).click();
+  const pptxDownload=await pptxDownloadEvent;assert.equal(pptxDownload.suggestedFilename(),`${created.id}.pptx`);
+  await page.getByRole('button',{name:'Export PPTX',exact:true}).waitFor();await position('decisions',2);
   // Ordinary source editing must become visible through Vite.
   const intro=path.join(created.source,'slides/intro.tsx'),code=await readFile(intro,'utf8');
   await writeFile(intro,code.replace('{slide.title}','Source edited directly'));
@@ -87,7 +104,7 @@ try {
   await new Promise<void>(resolve=>staticServer!.listen(0,'127.0.0.1',resolve));const address=staticServer.address();assert.ok(address&&typeof address!=='string');
   const exported=await browser.newPage();await exported.goto(`http://127.0.0.1:${address.port}/#/recovery/2`);await exported.waitForSelector('.reveal.ready');
   await exported.waitForFunction(()=>window.freyja?.position.step===2);assert.equal(await exported.locator('.present .f-flow-node').first().textContent(),'WorkerReply lost');
-  assert.equal(await exported.getByRole('button',{name:'Export PDF',exact:true}).count(),0);
+  assert.equal(await exported.getByRole('button',{name:'Export PDF',exact:true}).count(),0);assert.equal(await exported.getByRole('button',{name:'Export PPTX',exact:true}).count(),0);
   await exported.keyboard.press('ArrowRight');await exported.waitForFunction(()=>window.freyja?.position.step===3);
   const midnight=await app.service.create({id:'another-topic',title:'Another topic',theme:'midnight'});
   const dark=await browser.newPage();await dark.goto(await app.preview(midnight.id));await dark.waitForSelector('.reveal.ready');
@@ -105,5 +122,5 @@ try {
   const profiledBuild=await app.service.build(profiled.id);assert.ok((await readFile(profiledBuild.entry,'utf8')).includes('<div id="root">'));
   assert.deepEqual(brandErrors,[]);
   assert.deepEqual(errors,[]);assert.equal(await page.locator('[role=alert]').count(),0);
-  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build, second theme, profile styles/tokens/variants/kit imports and PDF final/all-step exports with isolated downloads.');
+  console.log('Browser checks passed: reverse, tabs, jump, overview, deep links, MCP navigation, isolated capture, source/theme refresh, static build, second theme, profile styles/tokens/variants/kit imports, PDF final/all-step exports and PPTX image exports with isolated downloads.');
 }finally{await browser.close();if(staticServer)await new Promise<void>(resolve=>staticServer!.close(()=>resolve()));await app.close();await rm(root,{recursive:true,force:true});}

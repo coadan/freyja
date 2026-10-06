@@ -55,7 +55,7 @@ The design deliberately uses the existing React/Reveal approach. Custom interact
 remain expressive without expanding a JSON behavior language. A future plugin can
 package new templates or skills without changing the presentation engine.
 
-## PDF export
+## PDF and PowerPoint export
 
 `export_pdf` runs the same TSX and scripted positions in isolated Chromium pages.
 The default prints the final step of each slide; the expanded mode prints every
@@ -67,3 +67,7 @@ The browser toolbar uses a same-origin POST download endpoint. CLI and MCP use t
 authenticated app-operation endpoint. Capture mode prevents export pages from
 reporting their positions or subscribing to live navigation. Export files are
 derived artifacts in the data directory, not presentation source.
+
+PPTX export walks the same rendered positions and captures each one as a 2× PNG, which
+pptxgenjs places full-bleed on a 16:9 slide. Converting arbitrary React, SVG and WebGL scenes
+into native PowerPoint shapes isn't attempted; the image keeps the slide faithful.
