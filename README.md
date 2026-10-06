@@ -119,6 +119,22 @@ Source files are authoritative. SQLite keeps catalog and inspection/build metada
 Navigation has one position shared by keys, tabs, URLs and MCP. Topic-specific
 behavior and branding remain in each presentation.
 
+## Tech
+
+| Layer | Tech |
+| --- | --- |
+| Language and runtime | TypeScript on Node.js 24+, run with `tsx` |
+| Slides | React 19 components (TSX), one file per slide |
+| Player | Reveal.js 6 through `@revealjs/react` |
+| Bundling | Vite 7: live preview with hot reload, and static HTML builds |
+| Agent interface | Model Context Protocol server, shared by the Codex and Claude Code plugins |
+| Local service | Node HTTP server on 127.0.0.1, with server-sent events for navigation |
+| Metadata | SQLite through `node:sqlite` (catalog and build records, not slide content) |
+| Validation | Zod schemas for `deck.json`, `brand.json` and `profile.json` |
+| Screenshots and PDF | Playwright with headless Chromium; pdf-lib assembles the PDF |
+| Icons | `lucide-react` |
+| Tests | Node's test runner and a Playwright browser suite |
+
 ## Documentation and development
 
 - [Documentation index](docs/README.md)
