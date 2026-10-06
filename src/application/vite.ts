@@ -44,9 +44,14 @@ async function common(source: string, live: boolean) {
     define: {__FREYJA_LIVE__: JSON.stringify(live)},
   }, allow: profile ? [appRoot, source, profile.root] : [appRoot, source]};
 }
-export async function createPreview(source: string, id: string, httpServer: Server): Promise<ViteDevServer> {
+// Pre-bundle the player's dependencies up front. Discovering one later (for example from a profile
+// component) re-optimizes mid-session, and open pages then request outdated chunks and render blank.
+const optimizeDeps = {include: ['react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom/client', '@revealjs/react', 'reveal.js', 'lucide-react', 'zod']};
+// Each preview owns its dependency cache. A shared node_modules/.vite is rewritten by any other
+// server or test run, which breaks module URLs already loaded in a live presentation.
+export async function createPreview(source: string, id: string, httpServer: Server, cacheDir: string): Promise<ViteDevServer> {
   const base = `/p/${id}/`, {config, allow} = await common(source, true);
-  return createServer({...config, base, server: {middlewareMode: true, hmr: {server: httpServer, path: `${base}hmr`}, fs: {allow}}, appType: 'spa'});
+  return createServer({...config, base, cacheDir, optimizeDeps, server: {middlewareMode: true, hmr: {server: httpServer, path: `${base}hmr`}, fs: {allow}}, appType: 'spa'});
 }
 export async function compile(source: string, output: string) {
   const {config} = await common(source, false);

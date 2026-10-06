@@ -17,6 +17,7 @@ try {
   const errors:string[]=[]; page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`${base}#/recovery/0`);
   await page.waitForSelector('.reveal.ready');
+  await readFile(path.join(root,'vite',created.id,'deps','_metadata.json'));// each preview owns its dependency cache
   const position=async(id:string,step:number)=>page.waitForFunction(([id,step])=>window.freyja?.position.slideId===id&&window.freyja.position.step===step,[id,step]);
   await position('recovery',0);
   for(let i=1;i<=3;i++){await page.keyboard.press('ArrowRight');await position('recovery',i);}

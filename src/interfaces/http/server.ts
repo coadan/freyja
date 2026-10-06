@@ -17,7 +17,7 @@ export async function startApp(dataDir: string, port = 0) {
   const send = (id: string, position: Position) => {for (const res of listeners.get(id) ?? []) res.write(`event: navigate\ndata: ${JSON.stringify(position)}\n\n`);};
   let url = '';
   const preview = async (id: string) => {
-    if (!previews.has(id)) {const promise = createPreview(service.catalog.get(id).source, id, http); previews.set(id, promise); promise.catch(() => previews.delete(id));}
+    if (!previews.has(id)) {const promise = createPreview(service.catalog.get(id).source, id, http, path.join(dataDir, 'vite', id)); previews.set(id, promise); promise.catch(() => previews.delete(id));}
     await previews.get(id); return `${url}/p/${id}/`;
   };
   const operations: Record<string, (args: any) => Promise<unknown> | unknown> = {
