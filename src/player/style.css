@@ -4,3 +4,4 @@
 html,body,#root{height:100%;width:100%}.reveal{height:100vh!important;width:100vw!important}
 
 .f-controls button:disabled{cursor:wait;opacity:.6}.f-export-error{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:30;max-width:80vw;background:var(--background);color:var(--danger);border:1px solid var(--danger);padding:14px 20px;border-radius:var(--radius);font-size:16px}
+.f-controls{opacity:0;transform:translate(-50%,10px);transition:opacity .2s,transform .2s}.f-controls.is-revealed,.f-controls:hover,.f-controls:focus-within{opacity:1;transform:translateX(-50%)}

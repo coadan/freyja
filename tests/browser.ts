@@ -17,6 +17,10 @@ try {
   const errors:string[]=[]; page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`${base}#/recovery/0`);
   await page.waitForSelector('.reveal.ready');
+  await page.mouse.move(720,300);
+  assert.equal(await page.locator('.f-controls').evaluate(e=>getComputedStyle(e).opacity),'0','Controls stay hidden away from the bottom edge');
+  await page.mouse.move(720,880);
+  await page.waitForFunction(()=>getComputedStyle(document.querySelector('.f-controls')!).opacity==='1');
   await readFile(path.join(root,'vite',created.id,'deps','_metadata.json'));// each preview owns its dependency cache
   const position=async(id:string,step:number)=>page.waitForFunction(([id,step])=>window.freyja?.position.slideId===id&&window.freyja.position.step===step,[id,step]);
   await position('recovery',0);
